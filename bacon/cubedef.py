@@ -463,8 +463,9 @@ class Label:
         # a sql syntax error)
         filter = "((%s) %s %%s)" % (self.sql_expression, qop)
 
+        # Comparisons with null, e.g. `(null = value)`, returns null (falsy)
+        # in sql, so make sure to check for None/null separately
         if isinstance(value, frozenset):
-            # in/not in need to treat the null values separately
             if None in value:
                 value = value - set([None])
                 if op == "in":
@@ -475,6 +476,9 @@ class Label:
                     filter = f"((({self.sql_expression}) is null) or {filter})"
 
             value = tuple(value)
+        else:
+            if value is not None and op == "ne":
+                filter = f"((({self.sql_expression}) is null) or {filter})"
 
         sql = sql.add_filter(filter, value)
 
