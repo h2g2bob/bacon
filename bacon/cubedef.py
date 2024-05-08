@@ -640,12 +640,16 @@ class BoolTypeLabel(Label):
         self.label_null = label_null
         super().__init__(*args, **kwargs)
 
-    def parse(self, s, _v={"0": False, "1": True, "": None}):
-        # TODO, enforce, check, etc, raise a better error, etc
-        return _v[s]
+    _q_to_b = {"0": False, "1": True, "": None}
 
-    def unparse(self, v, _f={False: "0", True: "1", None: ""}):
-        return _f[v]
+    def parse(self, s):
+        # TODO, enforce, check, etc, raise a better error, etc
+        return self._q_to_b[s]
+
+    _b_to_q = {False: "0", True: "1", None: ""}
+
+    def unparse(self, v):
+        return self._b_to_q[v]
 
     def pretty(self, value, record=None):
         if value is True:
